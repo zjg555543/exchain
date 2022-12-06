@@ -2,7 +2,9 @@ package baseapp
 
 import (
 	"bytes"
+	"fmt"
 	"runtime"
+	"sort"
 	"sync"
 
 	"github.com/okex/exchain/libs/cosmos-sdk/store/types"
@@ -16,6 +18,7 @@ import (
 var (
 	maxGoroutineNumberInParaTx  = runtime.NumCPU()
 	multiCacheListClearInterval = int64(100)
+	maxGroupSize                = runtime.NumCPU()
 )
 
 type extraDataForTx struct {
@@ -146,7 +149,9 @@ func (app *BaseApp) calGroup() {
 
 		}
 		para.groupList[id] = append(para.groupList[id], index)
-		para.txIndexWithGroup[index] = id
+	}
+	if len(para.groupList) > maxGroupSize {
+		para.groupList = rebuildGroups(para.txSize, para.groupList)
 	}
 
 	groupSize := len(para.groupList)
@@ -159,8 +164,67 @@ func (app *BaseApp) calGroup() {
 			if index-1 >= 0 {
 				app.parallelTxManage.preTxInGroup[list[index]] = list[index-1]
 			}
+			para.txIndexWithGroup[list[index]] = groupIndex
 		}
 	}
+}
+
+type GI struct {
+	groupIndex int
+	txSize     int
+}
+
+func rebuildGroups(txSize int, oldGroupList map[int][]int) map[int][]int {
+
+	groupInfo := make([]GI, 0)
+	for index := 0; index < len(oldGroupList); index++ {
+		groupInfo = append(groupInfo, GI{
+			groupIndex: index,
+			txSize:     len(oldGroupList[index]),
+		})
+	}
+	sort.SliceStable(groupInfo, func(i, j int) bool {
+		return groupInfo[i].txSize > groupInfo[j].txSize
+	})
+
+	avg := txSize / maxGroupSize
+
+	newGroupList := make(map[int][]int)
+	groupIndex := 0
+
+	biggerThanAvg := 0
+	start := 0
+	for index, v := range groupInfo {
+		start = index
+		if v.txSize >= avg {
+			newGroupList[groupIndex] = append(newGroupList[groupIndex], oldGroupList[v.groupIndex]...)
+			biggerThanAvg += v.txSize
+			groupIndex++
+		} else {
+			break
+		}
+	}
+	avg = (txSize - biggerThanAvg) / (maxGroupSize - groupIndex)
+	for index := start; index < len(groupInfo); index++ {
+		v := groupInfo[index]
+		if index == start {
+			newGroupList[groupIndex] = append(newGroupList[groupIndex], oldGroupList[v.groupIndex]...)
+			continue
+		}
+		if v.txSize+len(newGroupList[groupIndex]) >= avg {
+			groupIndex++
+		}
+		newGroupList[groupIndex] = append(newGroupList[groupIndex], oldGroupList[v.groupIndex]...)
+	}
+	for index := 0; index < len(newGroupList); index++ {
+		sort.Ints(newGroupList[index])
+	}
+
+	if len(newGroupList) > len(oldGroupList) {
+		fmt.Println("fuck---", oldGroupList, newGroupList)
+	}
+	fmt.Println("old groupList", len(oldGroupList), len(newGroupList))
+	return newGroupList
 }
 
 // ParallelTxs run txs
