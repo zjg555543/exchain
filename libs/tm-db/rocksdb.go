@@ -117,6 +117,7 @@ func NewRocksDB(name string, dir string) (*RocksDB, error) {
 		}
 	}
 
+	opts.SetUnorderedWrite(false)
 	opts.SetEnablePipelinedWrite(true)
 
 	// 1.5GB maximum memory use for writebuffer.
