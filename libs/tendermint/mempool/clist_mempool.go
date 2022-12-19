@@ -1325,7 +1325,9 @@ func (mem *CListMempool) simulationJob(memTx *mempoolTx) {
 	}
 	atomic.AddInt64(&simCount, 1)
 	start := time.Now()
-	global.WaitCommit()
+	if cfg.DynamicConfig.GetPGUAdjustment()*100 > 105 {
+		global.WaitCommit()
+	}
 	waitCost := time.Since(start).Microseconds()
 	atomic.AddInt64(&totalWaitCost, waitCost)
 	simuRes, err := mem.simulateTx(memTx.tx)
