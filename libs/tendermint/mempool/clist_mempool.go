@@ -141,6 +141,7 @@ func NewCListMempool(
 		mempool.rmPendingTxChan = make(chan types.EventDataRmPendingTx, 1000)
 		go mempool.fireRmPendingTxEvents()
 	}
+
 	go mempool.simulationRoutine()
 
 	if cfg.DynamicConfig.GetMempoolCacheSize() > 0 {
@@ -1005,7 +1006,11 @@ func (mem *CListMempool) Update(
 	// but they are not included in the latest block, after remove the latest block txs, these txs may
 	// in unsorted state. We need to resort them again for the the purpose of absolute order, or just let it go for they are
 	// already sorted int the last round (will only affect the account that send these txs).
-	fmt.Println("debug mempool, height:", height, "total:", totalCount, "drop:", dropCount)
+	fmt.Println("debug height:", height)
+	sc := atomic.LoadInt64(&simCount)
+	twc := atomic.LoadInt64(&totalWaitCost)
+	tsc := atomic.LoadInt64(&totalSimCost)
+	fmt.Println("total:", totalCount, "drop:", dropCount, "mean WaitCost", twc/(sc+1), "mean SimCost", tsc/(sc+1))
 	return nil
 }
 
@@ -1310,18 +1315,26 @@ func (mem *CListMempool) simulationRoutine() {
 	}
 }
 
+var simCount, totalWaitCost, totalSimCost int64
+
 func (mem *CListMempool) simulationJob(memTx *mempoolTx) {
 	defer types.SignatureCache().Remove(memTx.realTx.TxHash())
 	if atomic.LoadUint32(&memTx.isOutdated) != 0 {
 		// memTx is outdated
 		return
 	}
+	atomic.AddInt64(&simCount, 1)
+	start := time.Now()
 	global.WaitCommit()
+	waitCost := time.Since(start).Microseconds()
+	atomic.AddInt64(&totalWaitCost, waitCost)
 	simuRes, err := mem.simulateTx(memTx.tx)
 	if err != nil {
 		mem.logger.Error("simulateTx", "error", err, "txHash", memTx.tx.Hash(mem.Height()))
 		return
 	}
+	simCost := time.Since(start).Microseconds()
+	atomic.AddInt64(&totalSimCost, simCost)
 	gas := int64(simuRes.GasUsed) * int64(cfg.DynamicConfig.GetPGUAdjustment()*100) / 100
 	atomic.StoreInt64(&memTx.gasWanted, gas)
 	atomic.AddUint32(&memTx.isSim, 1)
