@@ -2,7 +2,9 @@ package baseapp
 
 import (
 	"bytes"
+	"fmt"
 	"runtime"
+	"sort"
 	"sync"
 
 	"github.com/okex/exchain/libs/cosmos-sdk/store/types"
@@ -163,6 +165,14 @@ func (app *BaseApp) calGroup() {
 			}
 		}
 	}
+
+	ans := make([]int, 0)
+
+	for index := 0; index < groupSize; index++ {
+		ans = append(ans, len(app.parallelTxManage.groupList[index]))
+	}
+	sort.Ints(ans)
+	fmt.Println(ans)
 }
 
 // ParallelTxs run txs
