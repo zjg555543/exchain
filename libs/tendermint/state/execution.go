@@ -279,10 +279,12 @@ func (blockExec *BlockExecutor) ApplyBlock(
 	trc.Pin(trace.Persist)
 	startTime = time.Now().UnixNano()
 
-	global.CommitMutex.Lock()
+	global.CommitLock()
+	start := time.Now()
 	// Lock mempool, commit app state, update mempoool.
 	commitResp, retainHeight, err := blockExec.commit(state, block, deltaInfo, abciResponses.DeliverTxs, trc)
-	global.CommitMutex.Unlock()
+	fmt.Println("total cost:", time.Since(start))
+	global.CommitUnlock()
 	endTime = time.Now().UnixNano()
 	blockExec.metrics.CommitTime.Set(float64(endTime-startTime) / 1e6)
 	if err != nil {

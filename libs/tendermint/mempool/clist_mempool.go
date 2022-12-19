@@ -133,7 +133,7 @@ func NewCListMempool(
 		logger:        log.NewNopLogger(),
 		metrics:       NopMetrics(),
 		txs:           txQueue,
-		simQueue:      make(chan *mempoolTx, 100000),
+		simQueue:      make(chan *mempoolTx, cfg.DynamicConfig.GetMempoolSize()*2),
 		gasCache:      gasCache,
 	}
 
@@ -890,6 +890,8 @@ func (mem *CListMempool) logUpdate(address string, nonce uint64) {
 	logDataPool.Put(logData)
 }
 
+var totalCount, dropCount int64
+
 // Lock() must be help by the caller during execution.
 func (mem *CListMempool) Update(
 	height int64,
@@ -922,6 +924,7 @@ func (mem *CListMempool) Update(
 	}
 
 	for i, tx := range txs {
+		totalCount++
 		txCode := deliverTxResponses[i].Code
 		addr := ""
 		nonce := uint64(0)
@@ -932,6 +935,7 @@ func (mem *CListMempool) Update(
 			nonce = ele.Nonce
 			mem.logUpdate(ele.Address, ele.Nonce)
 		} else {
+			dropCount++
 			if mem.txInfoparser != nil {
 				txInfo := mem.txInfoparser.GetRawTxInfo(tx)
 				addr = txInfo.Sender
@@ -1001,7 +1005,7 @@ func (mem *CListMempool) Update(
 	// but they are not included in the latest block, after remove the latest block txs, these txs may
 	// in unsorted state. We need to resort them again for the the purpose of absolute order, or just let it go for they are
 	// already sorted int the last round (will only affect the account that send these txs).
-
+	fmt.Println("debug mempool, height:", height, "total:", totalCount, "drop:", dropCount)
 	return nil
 }
 
@@ -1312,8 +1316,7 @@ func (mem *CListMempool) simulationJob(memTx *mempoolTx) {
 		// memTx is outdated
 		return
 	}
-	global.CommitMutex.Lock()
-	defer global.CommitMutex.Unlock()
+	global.WaitCommit()
 	simuRes, err := mem.simulateTx(memTx.tx)
 	if err != nil {
 		mem.logger.Error("simulateTx", "error", err, "txHash", memTx.tx.Hash(mem.Height()))
