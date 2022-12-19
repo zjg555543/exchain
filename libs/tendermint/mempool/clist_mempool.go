@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/okex/exchain/libs/tendermint/global"
 
 	"math/big"
 	"strconv"
@@ -1311,6 +1312,8 @@ func (mem *CListMempool) simulationJob(memTx *mempoolTx) {
 		// memTx is outdated
 		return
 	}
+	global.CommitMutex.Lock()
+	defer global.CommitMutex.Unlock()
 	simuRes, err := mem.simulateTx(memTx.tx)
 	if err != nil {
 		mem.logger.Error("simulateTx", "error", err, "txHash", memTx.tx.Hash(mem.Height()))
