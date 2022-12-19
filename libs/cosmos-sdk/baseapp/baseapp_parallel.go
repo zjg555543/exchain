@@ -121,6 +121,10 @@ func Union(x string, yString string) {
 	}
 }
 
+var (
+	tt = 0
+)
+
 // calGroup cal group by txs
 func (app *BaseApp) calGroup() {
 
@@ -173,6 +177,7 @@ func (app *BaseApp) calGroup() {
 	}
 	sort.Ints(ans)
 	fmt.Println(ans)
+	tt = ans[len(ans)-1]
 }
 
 // ParallelTxs run txs
@@ -268,7 +273,7 @@ func (app *BaseApp) runTxs() []*abci.ResponseDeliverTx {
 
 			if pm.upComingTxIndex == pm.txSize {
 				app.logger.Info("Paralleled-tx", "blockHeight", app.deliverState.ctx.BlockHeight(), "len(txs)", pm.txSize,
-					"Parallel run", pm.txSize-rerunIdx, "ReRun", rerunIdx, "len(group)", len(pm.groupList))
+					"Parallel run", pm.txSize-rerunIdx, "ReRun", rerunIdx, "len(group)", len(pm.groupList), "maxTxInGroup", tt)
 				signal <- 0
 				return
 			}
