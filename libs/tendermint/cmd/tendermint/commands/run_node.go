@@ -126,6 +126,16 @@ func AddNodeFlags(cmd *cobra.Command) {
 		false,
 		"enable precise gas used",
 	)
+	cmd.Flags().Bool(
+		"mempool.enable-pgu-lock",
+		false,
+		"enable pgu lock to avoid app commit conflicts",
+	)
+	cmd.Flags().Int(
+		"mempool.pgu-concurrency",
+		1,
+		"pgu concurrency",
+	)
 	cmd.Flags().Float64(
 		"mempool.pgu-adjustment",
 		1,

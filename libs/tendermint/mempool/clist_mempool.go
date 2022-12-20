@@ -142,7 +142,9 @@ func NewCListMempool(
 		go mempool.fireRmPendingTxEvents()
 	}
 
-	go mempool.simulationRoutine()
+	for i := 0; i < cfg.DynamicConfig.GetPGUConcurrency(); i++ {
+		go mempool.simulationRoutine()
+	}
 
 	if cfg.DynamicConfig.GetMempoolCacheSize() > 0 {
 		mempool.cache = newMapTxCache(cfg.DynamicConfig.GetMempoolCacheSize())
@@ -1010,7 +1012,7 @@ func (mem *CListMempool) Update(
 	sc := atomic.LoadInt64(&simCount)
 	twc := atomic.LoadInt64(&totalWaitCost)
 	tsc := atomic.LoadInt64(&totalSimCost)
-	fmt.Println("total:", totalCount, "drop:", dropCount, "mean WaitCost", twc/(sc+1), "mean SimCost", tsc/(sc+1), "totalSimCount", atomic.LoadInt64(&totalSimCount))
+	fmt.Println("total:", totalCount, "drop:", dropCount, "mean WaitCost", twc/(sc+1), "mean SimCost", tsc/(sc+1), "totalSimCount", sc)
 	return nil
 }
 
@@ -1309,11 +1311,8 @@ func (mem *CListMempool) simulateTx(tx types.Tx) (*SimulationResponse, error) {
 	return &simuRes, err
 }
 
-var totalSimCount int64
-
 func (mem *CListMempool) simulationRoutine() {
 	for memTx := range mem.simQueue {
-		atomic.AddInt64(&totalSimCount, 1)
 		mem.simulationJob(memTx)
 	}
 }
@@ -1328,7 +1327,7 @@ func (mem *CListMempool) simulationJob(memTx *mempoolTx) {
 	}
 	atomic.AddInt64(&simCount, 1)
 	start := time.Now()
-	if cfg.DynamicConfig.GetPGUAdjustment()*100 > 105 {
+	if cfg.DynamicConfig.GetEnablePGULock() {
 		global.WaitCommit()
 	}
 	waitCost := time.Since(start).Microseconds()

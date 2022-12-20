@@ -10,6 +10,8 @@ type IDynamicConfig interface {
 	GetMaxTxNumPerBlock() int64
 	GetMaxGasUsedPerBlock() int64
 	GetEnablePGU() bool
+	GetEnablePGULock() bool
+	GetPGUConcurrency() int
 	GetPGUAdjustment() float64
 	GetMempoolFlush() bool
 	GetNodeKeyWhitelist() []string
@@ -63,6 +65,14 @@ func (d MockDynamicConfig) GetMaxGasUsedPerBlock() int64 {
 
 func (d MockDynamicConfig) GetEnablePGU() bool {
 	return false
+}
+
+func (d MockDynamicConfig) GetEnablePGULock() bool {
+	return false
+}
+
+func (d MockDynamicConfig) GetPGUConcurrency() int {
+	return 1
 }
 
 func (d MockDynamicConfig) GetPGUAdjustment() float64 {
