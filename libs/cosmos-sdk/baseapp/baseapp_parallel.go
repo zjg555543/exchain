@@ -123,6 +123,7 @@ func Union(x string, yString string) {
 
 var (
 	tt = 0
+	mp = make(map[string]bool)
 )
 
 // calGroup cal group by txs
@@ -133,6 +134,8 @@ func (app *BaseApp) calGroup() {
 	rootAddr = make(map[string]string, 0)
 	for index, tx := range para.extraTxsInfo {
 		if tx.isEvm { //evmTx
+			mp[tx.from] = true
+			mp[tx.to] = true
 			Union(tx.from, tx.to)
 		} else {
 			para.haveCosmosTxInBlock = true
@@ -176,7 +179,8 @@ func (app *BaseApp) calGroup() {
 		ans = append(ans, len(app.parallelTxManage.groupList[index]))
 	}
 	sort.Ints(ans)
-	fmt.Println(ans)
+	fmt.Println("accountNumber", len(mp), ans)
+	mp = make(map[string]bool)
 	tt = ans[len(ans)-1]
 }
 
