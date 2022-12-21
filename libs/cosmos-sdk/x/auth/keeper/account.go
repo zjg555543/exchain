@@ -40,13 +40,20 @@ var addrStoreKeyPool = &sync.Pool{
 // GetAccount implements sdk.AccountKeeper.
 func (ak AccountKeeper) GetAccount(ctx sdk.Context, addr sdk.AccAddress) exported.Account {
 	ethaddr := ethcmn.BytesToAddress(addr.Bytes())
+	flag := false
+	if ethaddr.String() == "0x7A1E129ab3eeb4a610990D9F872f259e33089666" {
+		flag = true
+	}
 
 	if data, gas, ok := ctx.Cache().GetAccount(ethcmn.BytesToAddress(addr)); ok {
 		ctx.GasMeter().ConsumeGas(gas, "x/auth/keeper/account.go/GetAccount")
 		if data == nil {
 			return nil
 		}
-		fmt.Println("from cache--", ethaddr.String(), data.GetCoins().String())
+
+		if flag {
+			fmt.Println("from cache addr", ethaddr.String(), data.GetCoins().String())
+		}
 		return data.Copy()
 	}
 
@@ -75,6 +82,9 @@ func (ak AccountKeeper) GetAccount(ctx sdk.Context, addr sdk.AccAddress) exporte
 		ctx.Cache().UpdateAccount(addr, acc.Copy(), len(bz), false)
 	}
 
+	if flag {
+		fmt.Println("not from cache addr", ethaddr.String(), acc.GetCoins().String())
+	}
 	return acc
 }
 
