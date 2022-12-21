@@ -373,7 +373,7 @@ func (store *Store) dirtyItems(start, end []byte) {
 func (store *Store) setCacheValue(key, value []byte, deleted bool, dirty bool) {
 	if hex.EncodeToString(key) == "01de29683d31a55f32fda96e38a10bb7289d30458a" || hex.EncodeToString(key) == "017a1e129ab3eeb4a610990d9f872f259e33089666" {
 		fmt.Println("value", hex.EncodeToString(value), dirty, deleted)
-		if hex.EncodeToString(value) == "4c96dfce0a5e0a147a1e129ab3eeb4a610990d9f872f259e3308966612170a036f6b741210343938373434303530303030303030301a26f3b3cd03210385d6d98cd6ee1a368bdfad540b12ece05fcfe1b1dc645ea67e2457a85b7885a620cbcf0328f4081220c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470" {
+		if hex.EncodeToString(value) == "4c96dfce0a640a147a1e129ab3eeb4a610990d9f872f259e33089666121d0a036f6b741216313231353231343938373434303530303030303030301a26f3b3cd03210385d6d98cd6ee1a368bdfad540b12ece05fcfe1b1dc645ea67e2457a85b7885a620cbcf0328f4081220c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470" {
 			debug.PrintStack()
 		}
 	}
