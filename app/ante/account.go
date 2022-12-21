@@ -2,6 +2,7 @@ package ante
 
 import (
 	"bytes"
+	"fmt"
 	"math/big"
 	"strconv"
 	"strings"
@@ -213,6 +214,7 @@ func deductFees(ik innertx.InnerTxKeeper, ak accountKeeperInterface, sk types.Su
 
 	// set coins and record innertx
 	err := acc.SetCoins(balance)
+	fmt.Println("deductFees:acc", acc.GetAddress().String(), acc.GetCoins().String(), balance)
 	if !ctx.IsCheckTx() {
 		toAcc := sk.GetModuleAddress(types.FeeCollectorName)
 		ik.UpdateInnerTx(ctx.TxBytes(), ctx.BlockHeight(), innertx.CosmosDepth, acc.GetAddress(), toAcc, innertx.CosmosCallType, innertx.SendCallName, fees, err)
