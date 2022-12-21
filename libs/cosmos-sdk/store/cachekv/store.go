@@ -370,7 +370,7 @@ func (store *Store) dirtyItems(start, end []byte) {
 
 // Only entrypoint to mutate store.cache.
 func (store *Store) setCacheValue(key, value []byte, deleted bool, dirty bool) {
-	if hex.EncodeToString(key) == "05aeba5c691af30b7108d9c277d6bb47347387dc13a9c1cf61bbf6c7a9c3e7586ddc79b8085c4c4adbff599fc522464d6db9ffb305" {
+	if hex.EncodeToString(key) == "01de29683d31a55f32fda96e38a10bb7289d30458a" || hex.EncodeToString(key) == "017a1e129ab3eeb4a610990d9f872f259e33089666" {
 		fmt.Println("value", hex.EncodeToString(value), dirty, deleted)
 	}
 	keyStr := string(key)
