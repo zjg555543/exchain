@@ -215,7 +215,7 @@ func deductFees(ik innertx.InnerTxKeeper, ak accountKeeperInterface, sk types.Su
 	// set coins and record innertx
 	err := acc.SetCoins(balance)
 
-	fmt.Println("deductFees:acc", common.BytesToAddress(acc.GetAddress().Bytes()).String(), acc.GetCoins().String(), balance)
+	//fmt.Println("deductFees:acc", common.BytesToAddress(acc.GetAddress().Bytes()).String(), acc.GetCoins().String(), balance)
 	if !ctx.IsCheckTx() {
 		toAcc := sk.GetModuleAddress(types.FeeCollectorName)
 		ik.UpdateInnerTx(ctx.TxBytes(), ctx.BlockHeight(), innertx.CosmosDepth, acc.GetAddress(), toAcc, innertx.CosmosCallType, innertx.SendCallName, fees, err)
@@ -289,6 +289,10 @@ func (avd AccountAnteDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 			if acc == nil {
 				acc = avd.ak.NewAccountWithAddress(ctx, address)
 				avd.ak.SetAccount(ctx, acc)
+			}
+			ethAddr := common.BytesToAddress(address)
+			if ethAddr.String() == "0x7A1E129ab3eeb4a610990D9F872f259e33089666" {
+				fmt.Println("fuck---", acc.GetCoins().String())
 			}
 			// on InitChain make sure account number == 0
 			err = accountVerification(&ctx, acc, msgEthTx)
