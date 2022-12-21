@@ -2,20 +2,21 @@ package cachekv
 
 import (
 	"bytes"
+	"encoding/hex"
+	"fmt"
 	"io"
 	"reflect"
 	"sort"
 	"sync"
 	"unsafe"
 
+	"github.com/okex/exchain/libs/cosmos-sdk/store/tracekv"
+	"github.com/okex/exchain/libs/cosmos-sdk/store/types"
+	kv "github.com/okex/exchain/libs/cosmos-sdk/types/kv"
 	"github.com/okex/exchain/libs/iavl"
 	"github.com/okex/exchain/libs/system/trace"
 	dbm "github.com/okex/exchain/libs/tm-db"
 	"github.com/tendermint/go-amino"
-
-	"github.com/okex/exchain/libs/cosmos-sdk/store/tracekv"
-	"github.com/okex/exchain/libs/cosmos-sdk/store/types"
-	kv "github.com/okex/exchain/libs/cosmos-sdk/types/kv"
 )
 
 // If value is nil but deleted is false, it means the parent doesn't have the
@@ -369,6 +370,9 @@ func (store *Store) dirtyItems(start, end []byte) {
 
 // Only entrypoint to mutate store.cache.
 func (store *Store) setCacheValue(key, value []byte, deleted bool, dirty bool) {
+	if hex.EncodeToString(key) == "05aeba5c691af30b7108d9c277d6bb47347387dc13a9c1cf61bbf6c7a9c3e7586ddc79b8085c4c4adbff599fc522464d6db9ffb305" {
+		fmt.Println("value", hex.EncodeToString(value), dirty, deleted)
+	}
 	keyStr := string(key)
 	if !dirty {
 		store.readList[keyStr] = value

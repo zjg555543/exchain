@@ -12,21 +12,20 @@ import (
 	"syscall"
 	"time"
 
-	cosmost "github.com/okex/exchain/libs/cosmos-sdk/store/types"
-	"github.com/okex/exchain/libs/system/trace/persist"
-	"github.com/spf13/viper"
-	"github.com/tendermint/go-amino"
-
 	"github.com/okex/exchain/app/rpc/simulator"
 	"github.com/okex/exchain/libs/cosmos-sdk/codec"
 	"github.com/okex/exchain/libs/cosmos-sdk/store/mpt"
+	cosmost "github.com/okex/exchain/libs/cosmos-sdk/store/types"
 	"github.com/okex/exchain/libs/cosmos-sdk/types"
 	sdk "github.com/okex/exchain/libs/cosmos-sdk/types"
 	sdkerrors "github.com/okex/exchain/libs/cosmos-sdk/types/errors"
 	"github.com/okex/exchain/libs/iavl"
 	"github.com/okex/exchain/libs/system/trace"
+	"github.com/okex/exchain/libs/system/trace/persist"
 	abci "github.com/okex/exchain/libs/tendermint/abci/types"
 	tmtypes "github.com/okex/exchain/libs/tendermint/types"
+	"github.com/spf13/viper"
+	"github.com/tendermint/go-amino"
 )
 
 // InitChain implements the ABCI interface. It runs the initialization logic
@@ -220,6 +219,10 @@ func (app *BaseApp) updateFeeCollectorAccount(isEndBlock bool) {
 	cache.Write()
 	ctx.Cache().Write(true)
 }
+
+var (
+	cnt = 0
+)
 
 // EndBlock implements the ABCI interface.
 func (app *BaseApp) EndBlock(req abci.RequestEndBlock) (res abci.ResponseEndBlock) {
