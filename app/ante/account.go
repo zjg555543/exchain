@@ -290,10 +290,7 @@ func (avd AccountAnteDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 				acc = avd.ak.NewAccountWithAddress(ctx, address)
 				avd.ak.SetAccount(ctx, acc)
 			}
-			ethAddr := common.BytesToAddress(address)
-			//if ethAddr.String() == "0x7A1E129ab3eeb4a610990D9F872f259e33089666" {
-			fmt.Println("fuck---", ethAddr.String(), acc.GetCoins().String())
-			//}
+
 			// on InitChain make sure account number == 0
 			err = accountVerification(&ctx, acc, msgEthTx)
 			if err != nil {
@@ -309,6 +306,10 @@ func (avd AccountAnteDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 			)
 		}
 
+		ethAddr := common.BytesToAddress(address)
+		//if ethAddr.String() == "0x7A1E129ab3eeb4a610990D9F872f259e33089666" {
+		fmt.Println("fuck---", ethAddr.String(), acc.GetCoins().String())
+		//}
 		// account would not be updated
 		ctx, err = nonceVerification(ctx, acc, msgEthTx)
 		if err != nil {
