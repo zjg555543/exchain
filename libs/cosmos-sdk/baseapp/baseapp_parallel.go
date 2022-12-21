@@ -179,9 +179,18 @@ func (app *BaseApp) calGroup() {
 		ans = append(ans, len(app.parallelTxManage.groupList[index]))
 	}
 	sort.Ints(ans)
-	fmt.Println("accountNumber", len(mp), ans)
+	app.logger.Info("scf", "groupSize", groupSize, "accSize", len(mp), "detail", transAns(ans))
+
 	mp = make(map[string]bool)
 	tt = ans[len(ans)-1]
+}
+
+func transAns(ans []int) string {
+	ss := ""
+	for index := 0; index < len(ans); index++ {
+		ss += fmt.Sprintf("%d ", ans[index])
+	}
+	return ss
 }
 
 // ParallelTxs run txs
