@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"sync"
 
 	ethcmn "github.com/ethereum/go-ethereum/common"
@@ -38,12 +39,14 @@ var addrStoreKeyPool = &sync.Pool{
 
 // GetAccount implements sdk.AccountKeeper.
 func (ak AccountKeeper) GetAccount(ctx sdk.Context, addr sdk.AccAddress) exported.Account {
+	ethaddr := ethcmn.BytesToAddress(addr.Bytes())
+
 	if data, gas, ok := ctx.Cache().GetAccount(ethcmn.BytesToAddress(addr)); ok {
 		ctx.GasMeter().ConsumeGas(gas, "x/auth/keeper/account.go/GetAccount")
 		if data == nil {
 			return nil
 		}
-
+		fmt.Println("from cache--", ethaddr.String(), data.GetCoins().String())
 		return data.Copy()
 	}
 
