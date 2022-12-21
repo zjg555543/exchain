@@ -237,7 +237,10 @@ func (app *BaseApp) EndBlock(req abci.RequestEndBlock) (res abci.ResponseEndBloc
 	}
 	if app.deliverState.ctx.BlockHeader().Height == 4904416 {
 		app.deliverState.ms.IteratorCache(true, func(key string, value []byte, isDirty bool, isDelete bool, storeKey cosmost.StoreKey) bool {
-			fmt.Println("dirty", hex.EncodeToString([]byte(key)), hex.EncodeToString(value), isDirty, isDelete)
+			if hex.EncodeToString([]byte(key)) == "05aeba5c691af30b7108d9c277d6bb47347387dc13a9c1cf61bbf6c7a9c3e7586ddc79b8085c4c4adbff599fc522464d6db9ffb305" {
+				fmt.Println("dirty----", hex.EncodeToString([]byte(key)), hex.EncodeToString(value), isDirty, isDelete)
+			}
+
 			return true
 		}, nil)
 	}
