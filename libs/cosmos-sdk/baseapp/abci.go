@@ -1,6 +1,7 @@
 package baseapp
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -11,8 +12,10 @@ import (
 	"syscall"
 	"time"
 
+	cosmost "github.com/okex/exchain/libs/cosmos-sdk/store/types"
 	"github.com/okex/exchain/libs/system/trace/persist"
 	"github.com/spf13/viper"
+	"github.com/tendermint/go-amino"
 
 	"github.com/okex/exchain/app/rpc/simulator"
 	"github.com/okex/exchain/libs/cosmos-sdk/codec"
@@ -24,7 +27,6 @@ import (
 	"github.com/okex/exchain/libs/system/trace"
 	abci "github.com/okex/exchain/libs/tendermint/abci/types"
 	tmtypes "github.com/okex/exchain/libs/tendermint/types"
-	"github.com/tendermint/go-amino"
 )
 
 // InitChain implements the ABCI interface. It runs the initialization logic
@@ -229,6 +231,12 @@ func (app *BaseApp) EndBlock(req abci.RequestEndBlock) (res abci.ResponseEndBloc
 
 	if app.endBlocker != nil {
 		res = app.endBlocker(app.deliverState.ctx, req)
+	}
+	if app.deliverState.ctx.BlockHeader().Height == 4904416 {
+		app.deliverState.ms.IteratorCache(true, func(key string, value []byte, isDirty bool, isDelete bool, storeKey cosmost.StoreKey) bool {
+			fmt.Println("dirty", hex.EncodeToString([]byte(key)), hex.EncodeToString(value), isDirty, isDelete)
+			return true
+		}, nil)
 	}
 
 	return
