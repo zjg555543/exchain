@@ -220,10 +220,6 @@ func (app *BaseApp) updateFeeCollectorAccount(isEndBlock bool) {
 	ctx.Cache().Write(true)
 }
 
-var (
-	cnt = 0
-)
-
 // EndBlock implements the ABCI interface.
 func (app *BaseApp) EndBlock(req abci.RequestEndBlock) (res abci.ResponseEndBlock) {
 	app.updateFeeCollectorAccount(true)
