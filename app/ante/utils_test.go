@@ -1,7 +1,10 @@
 package ante_test
 
 import (
+	"context"
 	"fmt"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/okex/exchain/libs/cosmos-sdk/client"
 	"github.com/okex/exchain/libs/cosmos-sdk/codec"
 	types2 "github.com/okex/exchain/libs/cosmos-sdk/codec/types"
@@ -153,4 +156,21 @@ func mockIbcTx(accNum, seqNum []uint64, priv tmcrypto.PrivKey, chainId string, a
 		return nil
 	}
 	return &ibcTx
+}
+
+func TestAsd(t *testing.T) {
+	c, err := ethclient.Dial("http://35.72.176.238:26659")
+	if err != nil {
+		panic(err)
+	}
+	addr := common.HexToAddress("0x7A1E129ab3eeb4a610990D9F872f259e33089666")
+
+	for index := 4903221; index <= 4904417; index++ {
+		bb, err := c.BalanceAt(context.Background(), addr, new(big.Int).SetInt64(int64(index)))
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("bb", index, bb)
+	}
+
 }

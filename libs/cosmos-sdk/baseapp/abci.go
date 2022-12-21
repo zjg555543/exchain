@@ -220,9 +220,14 @@ func (app *BaseApp) updateFeeCollectorAccount(isEndBlock bool) {
 	ctx.Cache().Write(true)
 }
 
+var (
+	cnt = 0
+)
+
 // EndBlock implements the ABCI interface.
 func (app *BaseApp) EndBlock(req abci.RequestEndBlock) (res abci.ResponseEndBlock) {
 	app.updateFeeCollectorAccount(true)
+	cnt = 0
 
 	if app.deliverState.ms.TracingEnabled() {
 		app.deliverState.ms = app.deliverState.ms.SetTracingContext(nil).(sdk.CacheMultiStore)
