@@ -85,8 +85,8 @@ func (tx *Tx) refundFeesWatcher(account authexported.Account, ethereumTx *types.
 func (tx *Tx) Transition(config types.ChainConfig) (result base.Result, err error) {
 	result, err = tx.Tx.Transition(config)
 
-	if result.ExecResult != nil && result.ResultData != nil {
-		log.Printf("%v %v \n", result.ExecResult.Logs, result.ResultData.Logs)
+	if result.ResultData != nil {
+		log.Printf("%v \n", result.ResultData.String())
 	}
 	if result.InnerTxs != nil {
 		tx.Keeper.AddInnerTx(tx.StateTransition.TxHash.Hex(), result.InnerTxs)
