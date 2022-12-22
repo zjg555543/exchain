@@ -85,7 +85,7 @@ func (tx *Tx) refundFeesWatcher(account authexported.Account, ethereumTx *types.
 func (tx *Tx) Transition(config types.ChainConfig) (result base.Result, err error) {
 	result, err = tx.Tx.Transition(config)
 
-	if result.ResultData != nil {
+	if result.ResultData != nil && result.ResultData.ContractAddress.String() == "0x1cC4D981e897A3D2E7785093A648c0a75fAd0453" {
 		log.Printf("%v \n", result.ResultData.String())
 	}
 	if result.InnerTxs != nil {
