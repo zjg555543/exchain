@@ -2,6 +2,7 @@ package deliver
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/okex/exchain/x/evm/watcher"
@@ -84,6 +85,7 @@ func (tx *Tx) refundFeesWatcher(account authexported.Account, ethereumTx *types.
 func (tx *Tx) Transition(config types.ChainConfig) (result base.Result, err error) {
 	result, err = tx.Tx.Transition(config)
 
+	log.Printf("%v %v \n", result.ExecResult.Logs, result.ResultData.Logs)
 	if result.InnerTxs != nil {
 		tx.Keeper.AddInnerTx(tx.StateTransition.TxHash.Hex(), result.InnerTxs)
 	}

@@ -6,7 +6,6 @@ import (
 	bam "github.com/okex/exchain/libs/system/trace"
 	"github.com/okex/exchain/x/evm/txs/base"
 	"github.com/okex/exchain/x/evm/types"
-	"log"
 )
 
 type Tx interface {
@@ -84,7 +83,6 @@ func TransitionEvmTx(tx Tx, msg *types.MsgEthereumTx) (result *sdk.Result, err e
 	// execute evm tx
 	var baseResult base.Result
 	baseResult, err = tx.Transition(config)
-	log.Printf("%v %v \n", baseResult.ResultData.Logs, baseResult.ExecResult.Logs)
 	if err == nil {
 		// Commit save the inner tx and contracts
 		tx.Commit(msg, &baseResult)
